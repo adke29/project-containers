@@ -1,0 +1,17 @@
+services:
+  minio:
+    extends:
+      file: ./minio/compose.yaml
+      service: minio
+  mongodb:
+    extends:
+      file: ./mongodb/compose.yaml
+      service: mongodb
+  mysql:
+    extends:
+      file: ./mysql/compose.yaml
+      service: mysql
+  postgresql:
+    extends:
+      file: ./postgresql/compose.yaml
+      service: postgresql

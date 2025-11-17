@@ -11,6 +11,10 @@ services:
     extends:
       file: ./mysql/compose.yaml
       service: mysql
+  phpmyadmin:
+    extends:
+      file: ./mysql/compose.yaml
+      service: phpmyadmin
   postgresql:
     extends:
       file: ./postgresql/compose.yaml

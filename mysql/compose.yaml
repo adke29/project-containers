@@ -17,9 +17,10 @@ services:
     container_name: phpmyadmin
     environment:
       TZ: ${TZ:-UTC}
-      PMA_HOST: mysql
-      PMA_USER: ${MYSQL_USER:-mysql}
-      PMA_PASSWORD: ${MYSQL_PASSWORD:-mysql}}
+      PMA_ARBITRARY: 1
+      # PMA_HOST: mysql
+      # PMA_USER: ${MYSQL_USER:-mysql}
+      # PMA_PASSWORD: ${MYSQL_PASSWORD:-mysql}}
     restart: unless-stopped
     ports:
       - 127.0.0.1:8000:80

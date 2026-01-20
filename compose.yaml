@@ -19,3 +19,7 @@ services:
     extends:
       file: ./postgresql/compose.yaml
       service: postgresql
+  redis:
+    extends:
+      file: ./redis/compose.yaml
+      service: redis

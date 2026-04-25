@@ -19,6 +19,10 @@ services:
     extends:
       file: ./postgresql/compose.yaml
       service: postgresql
+  pgadmin:
+    extends:
+      file: ./postgresql/compose.yaml
+      service: pgadmin
   redis:
     extends:
       file: ./redis/compose.yaml

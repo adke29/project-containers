@@ -4,12 +4,12 @@ services:
     container_name: mysql
     environment:
       TZ: ${TZ:-UTC}
-      MYSQL_ROOT_PASSWORD: ${MYSQL_ROOT_PASSWORD:-root}
-      MYSQL_USER: ${MYSQL_USER:-mysql}
-      MYSQL_PASSWORD: ${MYSQL_PASSWORD:-mysql}}
+      MYSQL_ROOT_PASSWORD: ${MYSQL_ROOT_PASSWORD:-admin}
+      MYSQL_USER: ${MYSQL_USER:-admin}
+      MYSQL_PASSWORD: ${MYSQL_PASSWORD:-admin}}
       MYSQL_DATABASE: ${MYSQL_DATABASE:-${MYSQL_USER}}
     ports:
-      - "127.0.0.1:3306:3306"
+      - "3306:3306"
     volumes:
       - "./data:/var/lib/mysql"
   phpmyadmin:
@@ -23,4 +23,4 @@ services:
       # PMA_PASSWORD: ${MYSQL_PASSWORD:-mysql}}
     restart: unless-stopped
     ports:
-      - 127.0.0.1:8000:80
+      - 81:80

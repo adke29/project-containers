@@ -5,6 +5,7 @@ A simple Docker Compose project that runs databases and minio that controlled us
 ## Features
 
 - Minio Object Storage Container
+- Redis Container
 - MongoDB Container
 - MySQL Container
 - PostgreSQL Container
@@ -26,28 +27,7 @@ cd project-containers
 
 ### 2. Create a `.env` file
 
-Create a `.env` file in the root directory with the following contents:
-
-```bash
-# Minio
-MINIO_ROOT_USER=minio
-MINIO_ROOT_PASSWORD=securepassword
-
-# MongoDB
-MONGODB_INITDB_ROOT_USERNAME=mongo
-MONGODB_INITDB_ROOT_PASSWORD=securepassword
-
-# MySQL
-MYSQL_ROOT_PASSWORD=securepassword
-MYSQL_DATABASE=mysql
-MYSQL_USER=mysql
-MYSQL_PASSWORD=securepassword
-
-# PostgreSQL
-POSTGRES_USER=postgres
-POSTGRES_PASSWORD=postgres
-POSTGRES_DB=postgres
-```
+Create a `.env` file in the root directory like in .env.example:
 
 ### 3. Start the containers
 

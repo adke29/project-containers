@@ -6,8 +6,8 @@ services:
       TZ: ${TZ:-UTC}
       MYSQL_ROOT_PASSWORD: ${MYSQL_ROOT_PASSWORD:-admin}
       MYSQL_USER: ${MYSQL_USER:-admin}
-      MYSQL_PASSWORD: ${MYSQL_PASSWORD:-admin}}
-      MYSQL_DATABASE: ${MYSQL_DATABASE:-${MYSQL_USER}}
+      MYSQL_PASSWORD: ${MYSQL_PASSWORD:-admin}
+      MYSQL_DATABASE: ${MYSQL_DATABASE:-${MYSQL_USER:-test}}
     ports:
       - "3306:3306"
     volumes:
@@ -19,8 +19,9 @@ services:
       TZ: ${TZ:-UTC}
       PMA_ARBITRARY: 1
       # PMA_HOST: mysql
-      # PMA_USER: ${MYSQL_USER:-mysql}
-      # PMA_PASSWORD: ${MYSQL_PASSWORD:-mysql}}
+      # PMA_PORT: 3306
+      # PMA_USER: ${MYSQL_USER:-admin}
+      # PMA_PASSWORD: ${MYSQL_PASSWORD:-admin}
     restart: unless-stopped
     ports:
       - 81:80

@@ -1,6 +1,18 @@
 services:
+  # mongodb:
+  #   image: mongodb/mongodb-community-server
+  #   container_name: mongodb
+  #   ports:
+  #     - 27017:27017
+  #   volumes:
+  #     - ./data:/data/db
+  #   environment:
+  #     TZ: ${TZ:-UTC}
+  #     MONGODB_INITDB_ROOT_USERNAME: ${MONGODB_INITDB_ROOT_USERNAME:-admin}
+  #     MONGODB_INITDB_ROOT_PASSWORD: ${MONGODB_INITDB_ROOT_PASSWORD:-admin}
+  #   restart: unless-stopped
   mongodb:
-    image: mongodb/mongodb-community-server
+    image: mongo
     container_name: mongodb
     ports:
       - 27017:27017
@@ -8,8 +20,8 @@ services:
       - ./data:/data/db
     environment:
       TZ: ${TZ:-UTC}
-      MONGODB_INITDB_ROOT_USERNAME: ${MONGODB_INITDB_ROOT_USERNAME:-admin}
-      MONGODB_INITDB_ROOT_PASSWORD: ${MONGODB_INITDB_ROOT_PASSWORD:-admin}
+      MONGO_INITDB_ROOT_USERNAME: ${MONGODB_INITDB_ROOT_USERNAME:-admin}
+      MONGO_INITDB_ROOT_PASSWORD: ${MONGODB_INITDB_ROOT_PASSWORD:-admin}
     restart: unless-stopped
   # mongo-express:
   #   image: mongo-express

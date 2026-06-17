@@ -19,6 +19,15 @@ services:
     extends:
       file: ./postgresql/compose.yaml
       service: postgresql
+  postgresql-read:
+    extends:
+      file: ./postgresql/compose.yaml
+      service: postgresql
+    container_name: postgresql-read
+    ports:
+      - 5433:5432
+    volumes:
+      - "./postgresql/data-replica:/var/lib/postgresql"
   pgadmin:
     extends:
       file: ./postgresql/compose.yaml

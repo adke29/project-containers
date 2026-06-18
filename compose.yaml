@@ -19,6 +19,15 @@ services:
     extends:
       file: ./postgresql/compose.yaml
       service: postgresql
+    ports:
+      - 5432:5432
+    volumes:
+      - "./postgresql/data:/var/lib/postgresql"
+    command: >
+      postgres
+        -c wal_level=logical
+        -c max-replication_slots=5
+        -c max_wal_senders=5
   postgresql-read:
     extends:
       file: ./postgresql/compose.yaml

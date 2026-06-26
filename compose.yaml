@@ -26,13 +26,15 @@ services:
     command: >
       postgres
         -c wal_level=logical
-        -c max-replication_slots=5
-        -c max_wal_senders=5
+        -c max-replication_slots=10
+        -c max_wal_senders=10
   postgresql-read:
     extends:
       file: ./postgresql/compose.yaml
       service: postgresql
     container_name: postgresql-read
+    depends_on:
+      - postgresql
     ports:
       - 5433:5432
     volumes:

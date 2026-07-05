@@ -20,8 +20,8 @@ services:
       - ./data:/data/db
     environment:
       TZ: ${TZ:-UTC}
-      MONGO_INITDB_ROOT_USERNAME: ${MONGODB_INITDB_ROOT_USERNAME:-admin}
-      MONGO_INITDB_ROOT_PASSWORD: ${MONGODB_INITDB_ROOT_PASSWORD:-admin}
+      MONGO_INITDB_ROOT_USERNAME: ${MONGO_INITDB_ROOT_USERNAME:-admin}
+      MONGO_INITDB_ROOT_PASSWORD: ${MONGO_INITDB_ROOT_PASSWORD:-admin}
     restart: unless-stopped
   # mongo-express:
   #   image: mongo-express

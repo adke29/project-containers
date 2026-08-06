@@ -1,49 +1,119 @@
+x-common: &common
+  restart: unless-stopped
+  networks:
+    - project-container-net
+
+x-common-env: &common-env
+  TZ: ${TZ:-UTC}
+
+x-common-healthcheck: &common-healthcheck
+  interval: 1m
+  timeout: 5s
+  retries: 5
+  start_period: 10s
+
+x-postgress-env: &postgress-env
+  POSTGRES_USER: ${POSTGRES_USER:-admin}
+  POSTGRES_PASSWORD: ${POSTGRES_PASSWORD:-admin}
+  POSTGRES_DB: ${POSTGRES_DB:-admin}
+
+x-postgres: &postgres
+  image: postgres:alpine
+  environment:
+    <<: [ *common-env, *postgress-env ]
+  healthcheck:
+    <<: *common-healthcheck
+    test: [ "CMD-SHELL", "pg_isready $${POSTGRES_USER} -d $${POSTGRES_DB}" ]
+
 services:
+  redis:
+    <<: *common
+    image: redis:alpine
+    ports:
+      - 6379:6379
+    environment:
+      <<: *common-env
+    healthcheck:
+      <<: *common-healthcheck
+      test: [ "CMD", "redis-cli", "ping" ]
+
   minio:
-    extends:
-      file: ./minio/compose.yaml
-      service: minio
+    <<: *common
+    image: minio/minio
+    command: server /data --console-address ":9001"
+    ports:
+      - 9000:9000 # S3 API
+      - 9001:9001 # Web console
+    environment:
+      <<: *common-env
+      MINIO_ROOT_USER: ${MINIO_ROOT_USER:-admin}
+      MINIO_ROOT_PASSWORD: ${MINIO_ROOT_PASSWORD:-admin}
+
   mongodb:
-    extends:
-      file: ./mongodb/compose.yaml
-      service: mongodb
+    <<: *common
+    image: mongo
+    ports:
+      - 27017:27017
+    environment:
+      <<: *common-env
+      MONGO_INITDB_ROOT_USERNAME: ${MONGO_INITDB_ROOT_USERNAME:-admin}
+      MONGO_INITDB_ROOT_PASSWORD: ${MONGO_INITDB_ROOT_PASSWORD:-admin}
+    healthcheck:
+      <<: *common-healthcheck
+      test: [ "CMD", "mongosh", "--eval", "db.adminCommand('ping')" ]
+
   mysql:
-    extends:
-      file: ./mysql/compose.yaml
-      service: mysql
+    <<: *common
+    image: mysql
+    ports:
+      - "3306:3306"
+    environment:
+      <<: *common-env
+      MYSQL_ROOT_PASSWORD: ${MYSQL_ROOT_PASSWORD:-admin}
+      MYSQL_USER: ${MYSQL_USER:-admin}
+      MYSQL_PASSWORD: ${MYSQL_PASSWORD:-admin}
+      MYSQL_DATABASE: ${MYSQL_DATABASE:-${MYSQL_USER:-test}}
+    healthcheck:
+      <<: *common-healthcheck
+      test: [ "CMD-SHELL", "mysqladmin", "ping", "-h", "localhost", "-u", "root", "-p$$MYSQL_ROOT_PASSWORD" ]
+
   phpmyadmin:
-    extends:
-      file: ./mysql/compose.yaml
-      service: phpmyadmin
+    <<: *common
+    image: phpmyadmin
+    ports:
+      - 81:80
+    environment:
+      <<: *common-env
+      PMA_ARBITRARY: 1
+      PMA_HOST: mysql
+      PMA_PORT: 3306
+      PMA_USER: ${MYSQL_USER:-admin}
+      PMA_PASSWORD: ${MYSQL_PASSWORD:-admin}
+
   postgresql:
-    extends:
-      file: ./postgresql/compose.yaml
-      service: postgresql
+    <<: [ *common, *postgres ]
     ports:
       - 5432:5432
-    volumes:
-      - "./postgresql/data:/var/lib/postgresql"
     command: >
       postgres
         -c wal_level=logical
         -c max-replication_slots=10
         -c max_wal_senders=10
-  postgresql-read:
-    extends:
-      file: ./postgresql/compose.yaml
-      service: postgresql
-    container_name: postgresql-read
-    depends_on:
-      - postgresql
+
+  postgresql-replica:
+    <<: [ *common, *postgres ]
     ports:
       - 5433:5432
-    volumes:
-      - "./postgresql/data-replica:/var/lib/postgresql"
+
   pgadmin:
-    extends:
-      file: ./postgresql/compose.yaml
-      service: pgadmin
-  redis:
-    extends:
-      file: ./redis/compose.yaml
-      service: redis
+    <<: *common
+    image: dpage/pgadmin4
+    ports:
+      - 82:80
+    environment:
+      <<: *common-env
+      PGADMIN_DEFAULT_EMAIL: ${PGADMIN_DEFAULT_EMAIL:-admin@example.com}
+      PGADMIN_DEFAULT_PASSWORD: ${PGADMIN_DEFAULT_PASSWORD:-admin}
+
+networks:
+  project-container-net:

@@ -23,7 +23,7 @@ x-postgres: &postgres
     <<: [ *common-env, *postgress-env ]
   healthcheck:
     <<: *common-healthcheck
-    test: [ "CMD-SHELL", "pg_isready $${POSTGRES_USER} -d $${POSTGRES_DB}" ]
+    test: [ "CMD-SHELL", "pg_isready -U $${POSTGRES_USER} -d $${POSTGRES_DB}" ]
 
 services:
   redis:
@@ -48,6 +48,8 @@ services:
       <<: *common-env
       MINIO_ROOT_USER: ${MINIO_ROOT_USER:-admin}
       MINIO_ROOT_PASSWORD: ${MINIO_ROOT_PASSWORD:-admin}
+    volumes:
+      - minio_data:/data
 
   mongodb:
     <<: *common
@@ -58,6 +60,8 @@ services:
       <<: *common-env
       MONGO_INITDB_ROOT_USERNAME: ${MONGO_INITDB_ROOT_USERNAME:-admin}
       MONGO_INITDB_ROOT_PASSWORD: ${MONGO_INITDB_ROOT_PASSWORD:-admin}
+    volumes:
+      - mongodb_data:/data/db
     healthcheck:
       <<: *common-healthcheck
       test: [ "CMD", "mongosh", "--eval", "db.adminCommand('ping')" ]
@@ -73,9 +77,11 @@ services:
       MYSQL_USER: ${MYSQL_USER:-admin}
       MYSQL_PASSWORD: ${MYSQL_PASSWORD:-admin}
       MYSQL_DATABASE: ${MYSQL_DATABASE:-${MYSQL_USER:-test}}
+    volumes:
+      - mysql_data:/var/lib/mysql
     healthcheck:
       <<: *common-healthcheck
-      test: [ "CMD-SHELL", "mysqladmin", "ping", "-h", "localhost", "-u", "root", "-p$$MYSQL_ROOT_PASSWORD" ]
+      test: [ "CMD-SHELL", "mysqladmin ping -h localhost -u root -p$$MYSQL_ROOT_PASSWORD || exit 1" ]
 
   phpmyadmin:
     <<: *common
@@ -92,18 +98,22 @@ services:
 
   postgresql:
     <<: [ *common, *postgres ]
-    ports:
-      - 5432:5432
     command: >
       postgres
         -c wal_level=logical
         -c max-replication_slots=10
         -c max_wal_senders=10
+    ports:
+      - 5432:5432
+    volumes:
+      - postgresql_data:/var/lib/postgresql
 
   postgresql-replica:
     <<: [ *common, *postgres ]
     ports:
       - 5433:5432
+    volumes:
+      - postgresql_replica_data:/var/lib/postgresql
 
   pgadmin:
     <<: *common
@@ -114,6 +124,16 @@ services:
       <<: *common-env
       PGADMIN_DEFAULT_EMAIL: ${PGADMIN_DEFAULT_EMAIL:-admin@example.com}
       PGADMIN_DEFAULT_PASSWORD: ${PGADMIN_DEFAULT_PASSWORD:-admin}
+    volumes:
+      - pgadmin_data:/var/lib/pgadmin
+
+volumes:
+  minio_data:
+  mongodb_data:
+  mysql_data:
+  postgresql_data:
+  postgresql_replica_data:
+  pgadmin_data:
 
 networks:
   project-container-net:

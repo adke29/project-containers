@@ -2,6 +2,12 @@
 
 All notable changes to this project will be documented in this file.
 
+## [2.2.0](https://github.com/adke29/project-containers/compare/v2.1.0...v2.2.0) (2026-08-11)
+
+### Features
+
+* add nats ([7038d74](https://github.com/adke29/project-containers/commit/7038d748b3fb24408d44fab561aff8dc62014aa9))
+* upgrade pnpm ([2f39d67](https://github.com/adke29/project-containers/commit/2f39d671fe468d91f2952ab2bb396337352981dc))
 ## [2.1.0](https://github.com/adke29/project-containers/compare/v2.0.0...v2.1.0) (2026-08-11)
 
 ### Features

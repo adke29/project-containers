@@ -2,6 +2,12 @@
 
 All notable changes to this project will be documented in this file.
 
+## [2.1.0](https://github.com/adke29/project-containers/compare/v2.0.0...v2.1.0) (2026-08-11)
+
+### Features
+
+* add opensearch ([8102f20](https://github.com/adke29/project-containers/commit/8102f20a4e95979d735625112f1ac9703e7135a9))
+* change volume to bind mount ([04246e5](https://github.com/adke29/project-containers/commit/04246e5aabc68da149507a2e2249eb6bc6914436))
 ## [2.0.0](https://github.com/adke29/project-containers/compare/v1.1.0...v2.0.0) (2026-08-06)
 
 ### ⚠ BREAKING CHANGES

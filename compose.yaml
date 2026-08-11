@@ -130,6 +130,9 @@ services:
   opensearch:
     <<: *common
     image: opensearchproject/opensearch
+    ports:
+      - 9200:9200 # REST API
+      - 9600:9600 # Performance Analyzer
     environment:
       <<: *common-env
       discovery.type: single-node
@@ -145,9 +148,6 @@ services:
         hard: 65536
     volumes:
       - ./volumes/opensearch-data:/usr/share/opensearch/data # Creates volume called opensearch-data1 and mounts it to the container
-    ports:
-      - 9200:9200 # REST API
-      - 9600:9600 # Performance Analyzer
 
   opensearch-dashboards:
     <<: *common
@@ -157,6 +157,18 @@ services:
     environment:
       <<: *common-env
       OPENSEARCH_HOSTS: '["https://opensearch:9200"]' # Define the OpenSearch nodes that OpenSearch Dashboards will query
+
+  nats:
+    <<: *common
+    image: nats:alpine
+    command: [ "-js", "-sd", "/data", "-m", "8222", "--user", "${NATS_USER:-admin}", "--pass", "${NATS_PASSWORD:-admin}" ]
+    ports:
+      - 4222:4222
+      - 8222:8222
+    environment:
+      <<: *common-env
+    volumes:
+      - ./volumes/nats-data:/data
 
 networks:
   project-container-net:

@@ -2,6 +2,11 @@
 
 All notable changes to this project will be documented in this file.
 
+## [2.3.0](https://github.com/adke29/project-containers/compare/v2.2.0...v2.3.0) (2026-08-14)
+
+### Features
+
+* add version for better stability ([50477e4](https://github.com/adke29/project-containers/commit/50477e4fd4fe00dc438f2b9cdcad2ab419223e8b))
 ## [2.2.0](https://github.com/adke29/project-containers/compare/v2.1.0...v2.2.0) (2026-08-11)
 
 ### Features

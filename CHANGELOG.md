@@ -2,6 +2,11 @@
 
 All notable changes to this project will be documented in this file.
 
+## [2.4.0](https://github.com/adke29/project-containers/compare/v2.3.0...v2.4.0) (2026-08-25)
+
+### Features
+
+* add keycloak ([5790e13](https://github.com/adke29/project-containers/commit/5790e13d3d613d36a90c5f3db5031db6aaef19e8))
 ## [2.3.0](https://github.com/adke29/project-containers/compare/v2.2.0...v2.3.0) (2026-08-14)
 
 ### Features

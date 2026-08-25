@@ -68,7 +68,7 @@ services:
 
   mysql:
     <<: *common
-    image: mysql:8-debian
+    image: mysql:9.7
     ports:
       - "3306:3306"
     environment:
@@ -169,6 +169,16 @@ services:
       <<: *common-env
     volumes:
       - ./volumes/nats-data:/data
+  keycloak:
+    <<: *common
+    image: quay.io/keycloak/keycloak:26.7
+    ports:
+      - 8080:8080
+    environment:
+      <<: *common-env
+      KC_BOOTSTRAP_ADMIN_USERNAME: ${KC_BOOTSTRAP_ADMIN_USERNAME:-admin}
+      KC_BOOTSTRAP_ADMIN_PASSWORD: ${KC_BOOTSTRAP_ADMIN_PASSWORD:-admin}
+    command: [ 'start-dev' ]
 
 networks:
   project-container-net:

@@ -2,6 +2,11 @@
 
 All notable changes to this project will be documented in this file.
 
+## [2.4.1](https://github.com/adke29/project-containers/compare/v2.4.0...v2.4.1) (2026-08-28)
+
+### Bug Fixes
+
+* use the latest supported enterprise feature minio ([105076d](https://github.com/adke29/project-containers/commit/105076ded5d563e1d34e0a7967176c8fb33c573c))
 ## [2.4.0](https://github.com/adke29/project-containers/compare/v2.3.0...v2.4.0) (2026-08-25)
 
 ### Features

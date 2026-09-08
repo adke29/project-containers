@@ -69,8 +69,8 @@ services:
   mysql:
     <<: *common
     image: mysql:9.7
-    ports:
-      - "3306:3306"
+    # ports:
+    #   - "3306:3306"
     environment:
       <<: *common-env
       MYSQL_ROOT_PASSWORD: ${MYSQL_ROOT_PASSWORD:-admin}
@@ -83,6 +83,23 @@ services:
       <<: *common-healthcheck
       test: [ "CMD-SHELL", "mysqladmin ping -h localhost -u root -p$$MYSQL_ROOT_PASSWORD || exit 1" ]
 
+  mariadb:
+    <<: *common
+    image: mariadb:11.8.8
+    ports:
+      - "3306:3306"
+    environment:
+      <<: *common-env
+      MARIADB_ROOT_PASSWORD: ${MARIADB_ROOT_PASSWORD:-admin}
+      MARIADB_USER: ${MARIADB_USER:-admin}
+      MARIADB_PASSWORD: ${MARIADB_PASSWORD:-admin}
+      MARIADB_DATABASE: ${MARIADB_DATABASE:-${MARIADB_USER:-test}}
+    volumes:
+      - ./volumes/mariadb-data:/var/lib/mysql
+    healthcheck:
+      <<: *common-healthcheck
+      test: [ "CMD-SHELL", "healthcheck.sh", "--connect", "--innodb_initialized" ]
+
   phpmyadmin:
     <<: *common
     image: phpmyadmin
@@ -91,10 +108,13 @@ services:
     environment:
       <<: *common-env
       PMA_ARBITRARY: 1
-      PMA_HOST: mysql
-      PMA_PORT: 3306
-      PMA_USER: ${MYSQL_USER:-admin}
-      PMA_PASSWORD: ${MYSQL_PASSWORD:-admin}
+      UPLOAD_LIMIT: 2G
+      MAX_EXECUTION_TIME: 0
+      MEMORY_LIMIT: 2G
+      # PMA_HOST: mysql
+      # PMA_PORT: 3306
+      # PMA_USER: ${MYSQL_USER:-admin}
+      # PMA_PASSWORD: ${MYSQL_PASSWORD:-admin}
 
   postgresql:
     <<: [ *common, *postgres ]

@@ -2,6 +2,11 @@
 
 All notable changes to this project will be documented in this file.
 
+## [2.5.1](https://github.com/adke29/project-containers/compare/v2.5.0...v2.5.1) (2026-09-17)
+
+### Bug Fixes
+
+* change minio docker image because deprecated in docker hub ([d527077](https://github.com/adke29/project-containers/commit/d52707702a93f4300dd9efbaa9e94ca73a58a4ea))
 ## [2.5.0](https://github.com/adke29/project-containers/compare/v2.4.1...v2.5.0) (2026-09-08)
 
 ### Features

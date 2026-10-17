@@ -1,0 +1,16 @@
+datacenter = "dc1"
+
+server           = true
+bootstrap_expect = 1
+
+ui_config {
+  enabled = true
+}
+
+client_addr = "0.0.0.0"
+
+acl {
+  enabled                  = true
+  default_policy           = "deny"
+  enable_token_persistence = true
+}

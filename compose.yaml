@@ -189,6 +189,7 @@ services:
       <<: *common-env
     volumes:
       - ./volumes/nats-data:/data
+
   keycloak:
     <<: *common
     image: quay.io/keycloak/keycloak:26.7
@@ -199,6 +200,21 @@ services:
       KC_BOOTSTRAP_ADMIN_USERNAME: ${KC_BOOTSTRAP_ADMIN_USERNAME:-admin}
       KC_BOOTSTRAP_ADMIN_PASSWORD: ${KC_BOOTSTRAP_ADMIN_PASSWORD:-admin}
     command: [ 'start-dev' ]
+
+  consul:
+    <<: *common
+    image: hashicorp/consul:2.0.4
+    ports:
+      - 8500:8500 # Web UI & HTTP API
+      - 8600:8600/tcp # DNS Server (UDP)
+      - 8600:8600/udp # DNS Server (TCP)
+    environment:
+      <<: *common-env
+    volumes:
+      - ./config/consul/config:/consul/config
+      - ./volumes/consul-data:/consul/data
+    command:
+      - agent
 
 networks:
   project-container-net:

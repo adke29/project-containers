@@ -1,4 +1,5 @@
 datacenter = "dc1"
+data_dir         = "/consul/data"
 
 server           = true
 bootstrap_expect = 1

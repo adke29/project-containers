@@ -215,6 +215,7 @@ services:
       - ./volumes/consul-data:/consul/data
     command:
       - agent
+      - -config-dir=/consul/config
 
 networks:
   project-container-net:

@@ -45,3 +45,11 @@ docker compose up -d
 ```bash
 docker compose down
 ```
+
+## HashiCorp Consul init
+
+After create the container run:
+
+```bash
+docker compose exec consul consul acl bootstrap
+```

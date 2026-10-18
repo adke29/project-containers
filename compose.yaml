@@ -33,6 +33,8 @@ services:
       - 6379:6379
     environment:
       <<: *common-env
+    volumes:
+      - ${VOLUME_DIR_PATH:-./volumes}/redis-data:/data
     healthcheck:
       <<: *common-healthcheck
       test: [ "CMD", "redis-cli", "ping" ]

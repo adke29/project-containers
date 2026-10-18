@@ -2,6 +2,17 @@
 
 All notable changes to this project will be documented in this file.
 
+## [2.6.0](https://github.com/adke29/project-containers/compare/v2.5.1...v2.6.0) (2026-10-18)
+
+### Features
+
+* add consul authentication ([53bd63f](https://github.com/adke29/project-containers/commit/53bd63f4c9f5c9be62db8d9fd49302c90eaf8150))
+* add consul bootstrap ([7d4b602](https://github.com/adke29/project-containers/commit/7d4b60272bbed6b5f9120047e277dd8e13270bbf))
+* add custom volume url ([19e1a41](https://github.com/adke29/project-containers/commit/19e1a419753464407961230d57cf73c794b5dcb2))
+
+### Bug Fixes
+
+* fix redis data mount ([f1e3c6f](https://github.com/adke29/project-containers/commit/f1e3c6f4e0b3ba3b33c433d8e12ae5d3da17ef63))
 ## [2.5.1](https://github.com/adke29/project-containers/compare/v2.5.0...v2.5.1) (2026-09-17)
 
 ### Bug Fixes

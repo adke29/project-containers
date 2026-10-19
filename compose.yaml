@@ -25,6 +25,26 @@ x-postgres: &postgres
     <<: *common-healthcheck
     test: [ "CMD-SHELL", "pg_isready -U $${POSTGRES_USER} -d $${POSTGRES_DB}" ]
 
+x-opensearch-env: &opensearch-env
+  cluster.name: opensearch-cluster
+  discovery.seed_hosts: opensearch,opensearch-replica
+  cluster.initial_cluster_manager_nodes: opensearch,opensearch-replica
+  bootstrap.memory_lock: true # Disable JVM heap memory swapping
+  OPENSEARCH_JAVA_OPTS: "-Xms512m -Xmx512m" # Set min and max JVM heap sizes to at least 50% of system RAM
+  OPENSEARCH_INITIAL_ADMIN_PASSWORD: ${OPENSEARCH_INITIAL_ADMIN_PASSWORD} # Sets the demo admin user password when using demo configuration, required for OpenSearch 2.12 and later
+
+x-opensearch: &opensearch
+  image: opensearchproject/opensearch:3
+  environment:
+    <<: [ *common-env, *opensearch-env ]
+  ulimits:
+    memlock:
+      soft: -1 # Set memlock to unlimited (no soft or hard limit)
+      hard: -1
+    nofile:
+      soft: 65536 # Maximum number of open files for the opensearch user - set to at least 65536
+      hard: 65536
+
 services:
   redis:
     <<: *common
@@ -150,26 +170,26 @@ services:
       - ${VOLUME_DIR_PATH:-./volumes}/pgadmin-data:/var/lib/pgadmin
 
   opensearch:
-    <<: *common
-    image: opensearchproject/opensearch:3
+    <<: [ *common, *opensearch ]
     ports:
       - 9200:9200 # REST API
       - 9600:9600 # Performance Analyzer
     environment:
-      <<: *common-env
-      discovery.type: single-node
-      bootstrap.memory_lock: true # Disable JVM heap memory swapping
-      OPENSEARCH_JAVA_OPTS: "-Xms512m -Xmx512m" # Set min and max JVM heap sizes to at least 50% of system RAM
-      OPENSEARCH_INITIAL_ADMIN_PASSWORD: ${OPENSEARCH_INITIAL_ADMIN_PASSWORD} # Sets the demo admin user password when using demo configuration, required for OpenSearch 2.12 and later
-    ulimits:
-      memlock:
-        soft: -1 # Set memlock to unlimited (no soft or hard limit)
-        hard: -1
-      nofile:
-        soft: 65536 # Maximum number of open files for the opensearch user - set to at least 65536
-        hard: 65536
+      <<: [ *common-env, *opensearch-env ]
+      node.name: opensearch
     volumes:
       - ${VOLUME_DIR_PATH:-./volumes}/opensearch-data:/usr/share/opensearch/data # Creates volume called opensearch-data1 and mounts it to the container
+
+  opensearch-replica:
+    <<: [ *common, *opensearch ]
+    ports:
+      - 9201:9200 # REST API
+      - 9601:9600 # Performance Analyzer
+    environment:
+      <<: [ *common-env, *opensearch-env ]
+      node.name: opensearch-replica
+    volumes:
+      - ${VOLUME_DIR_PATH:-./volumes}/opensearch-replica-data:/usr/share/opensearch/data
 
   opensearch-dashboards:
     <<: *common

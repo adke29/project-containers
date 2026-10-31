@@ -2,6 +2,16 @@
 
 All notable changes to this project will be documented in this file.
 
+## [2.7.0](https://github.com/adke29/project-containers/compare/v2.6.0...v2.7.0) (2026-10-31)
+
+### Features
+
+* add opensearch replica ([1b2d0dd](https://github.com/adke29/project-containers/commit/1b2d0ddb7970a5ed1ab2f4d12226b66bcef8526d))
+* update mongo to version 9 ([bd7df19](https://github.com/adke29/project-containers/commit/bd7df19d7dabe8be00e5b430b9ab40436461fe40))
+
+### Bug Fixes
+
+* use stable mongodb version ([7242c33](https://github.com/adke29/project-containers/commit/7242c331e92677058a3340c61b8723b0fd43f3c5))
 ## [2.6.0](https://github.com/adke29/project-containers/compare/v2.5.1...v2.6.0) (2026-10-18)
 
 ### Features

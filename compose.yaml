@@ -75,7 +75,7 @@ services:
 
   mongodb:
     <<: *common
-    image: mongo:9-noble
+    image: mongo:9.0-noble
     ports:
       - 27017:27017
     environment:
@@ -84,6 +84,7 @@ services:
       MONGO_INITDB_ROOT_PASSWORD: ${MONGO_INITDB_ROOT_PASSWORD:-admin}
     volumes:
       - ${VOLUME_DIR_PATH:-./volumes}/mongodb-data:/data/db
+      - ${VOLUME_DIR_PATH:-./volumes}/mongodb-config:/data/configdb
     healthcheck:
       <<: *common-healthcheck
       test: [ "CMD", "mongosh", "--eval", "db.adminCommand('ping')" ]

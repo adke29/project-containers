@@ -75,7 +75,7 @@ services:
 
   mongodb:
     <<: *common
-    image: mongo:8-noble
+    image: mongo:9-noble
     ports:
       - 27017:27017
     environment:

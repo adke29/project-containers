@@ -12,6 +12,14 @@ x-common-healthcheck: &common-healthcheck
   retries: 5
   start_period: 10s
 
+x-redis: &redis
+  image: redis:8-alpine
+  environment:
+    <<: *common-env
+  healthcheck:
+    <<: *common-healthcheck
+    test: [ "CMD", "redis-cli", "ping" ]
+
 x-postgress-env: &postgress-env
   POSTGRES_USER: ${POSTGRES_USER:-admin}
   POSTGRES_PASSWORD: ${POSTGRES_PASSWORD:-admin}
@@ -59,6 +67,75 @@ services:
       <<: *common-healthcheck
       test: [ "CMD", "redis-cli", "ping" ]
 
+  redis-1:
+    <<: [ *common, *redis ]
+    command:
+      - redis-server
+      - --appendonly
+      - "yes"
+    volumes:
+      - ${VOLUME_DIR_PATH:-./volumes}/redis1-data:/data
+
+  redis-2:
+    <<: [ *common, *redis ]
+    command:
+      - redis-server
+      - --replicaof
+      - redis-1
+      - "6379"
+      - --appendonly
+      - "yes"
+    volumes:
+      - ${VOLUME_DIR_PATH:-./volumes}/redis2-data:/data
+
+  redis-3:
+    <<: [ *common, *redis ]
+    command:
+      - redis-server
+      - --replicaof
+      - redis-1
+      - "6379"
+      - --appendonly
+      - "yes"
+    volumes:
+      - ${VOLUME_DIR_PATH:-./volumes}/redis3-data:/data
+
+  sentinel-1:
+    <<: [ *common, *redis ]
+    command: >
+      sh -c 'test -f /data/sentinel.conf || cp /etc/redis/sentinel.conf /data/sentinel.conf; exec redis-server /data/sentinel.conf --sentinel'
+    volumes:
+      - ./config/redis/sentinel.conf:/etc/redis/sentinel.conf:ro
+      - ${VOLUME_DIR_PATH:-./volumes}/sentinel1-data:/data
+    depends_on:
+      - redis-1
+      - redis-2
+      - redis-3
+
+  sentinel-2:
+    <<: [ *common, *redis ]
+    command: >
+      sh -c 'test -f /data/sentinel.conf || cp /etc/redis/sentinel.conf /data/sentinel.conf; exec redis-server /data/sentinel.conf --sentinel'
+    volumes:
+      - ./config/redis/sentinel.conf:/etc/redis/sentinel.conf:ro
+      - ${VOLUME_DIR_PATH:-./volumes}/sentinel2-data:/data
+    depends_on:
+      - redis-1
+      - redis-2
+      - redis-3
+
+  sentinel-3:
+    <<: [ *common, *redis ]
+    command: >
+      sh -c 'test -f /data/sentinel.conf || cp /etc/redis/sentinel.conf /data/sentinel.conf; exec redis-server /data/sentinel.conf --sentinel'
+    volumes:
+      - ./config/redis/sentinel.conf:/etc/redis/sentinel.conf:ro
+      - ${VOLUME_DIR_PATH:-./volumes}/sentinel3-data:/data
+    depends_on:
+      - redis-1
+      - redis-2
+      - redis-3
+
   minio:
     <<: *common
     image: quay.io/minio/minio:RELEASE.2025-04-22T22-12-26Z
@@ -75,7 +152,7 @@ services:
 
   mongodb:
     <<: *common
-    image: mongo:9.0-noble
+    image: mongo:9-noble
     ports:
       - 27017:27017
     environment:
@@ -212,33 +289,32 @@ services:
       <<: *common-env
     volumes:
       - ${VOLUME_DIR_PATH:-./volumes}/nats-data:/data
+  # keycloak:
+  #   <<: *common
+  #   image: quay.io/keycloak/keycloak:26.7
+  #   ports:
+  #     - 8080:8080
+  #   environment:
+  #     <<: *common-env
+  #     KC_BOOTSTRAP_ADMIN_USERNAME: ${KC_BOOTSTRAP_ADMIN_USERNAME:-admin}
+  #     KC_BOOTSTRAP_ADMIN_PASSWORD: ${KC_BOOTSTRAP_ADMIN_PASSWORD:-admin}
+  #   command: [ 'start-dev' ]
 
-  keycloak:
-    <<: *common
-    image: quay.io/keycloak/keycloak:26.7
-    ports:
-      - 8080:8080
-    environment:
-      <<: *common-env
-      KC_BOOTSTRAP_ADMIN_USERNAME: ${KC_BOOTSTRAP_ADMIN_USERNAME:-admin}
-      KC_BOOTSTRAP_ADMIN_PASSWORD: ${KC_BOOTSTRAP_ADMIN_PASSWORD:-admin}
-    command: [ 'start-dev' ]
-
-  consul:
-    <<: *common
-    image: hashicorp/consul:2.0.4
-    ports:
-      - 8500:8500 # Web UI & HTTP API
-      - 8600:8600/tcp # DNS Server (UDP)
-      - 8600:8600/udp # DNS Server (TCP)
-    environment:
-      <<: *common-env
-    volumes:
-      - ./config/consul/config:/consul/config
-      - ${VOLUME_DIR_PATH:-./volumes}/consul-data:/consul/data
-    command:
-      - agent
-      - -config-dir=/consul/config
+  # consul:
+  #   <<: *common
+  #   image: hashicorp/consul:2.0.4
+  #   ports:
+  #     - 8500:8500 # Web UI & HTTP API
+  #     - 8600:8600/tcp # DNS Server (UDP)
+  #     - 8600:8600/udp # DNS Server (TCP)
+  #   environment:
+  #     <<: *common-env
+  #   volumes:
+  #     - ./config/consul/config:/consul/config
+  #     - ${VOLUME_DIR_PATH:-./volumes}/consul-data:/consul/data
+  #   command:
+  #     - agent
+  #     - -config-dir=/consul/config
 
 networks:
   project-container-net:

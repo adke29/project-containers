@@ -136,19 +136,19 @@ services:
       - redis-2
       - redis-3
 
-  minio:
-    <<: *common
-    image: quay.io/minio/minio:RELEASE.2025-04-22T22-12-26Z
-    command: server /data --console-address ":9001"
-    ports:
-      - 9000:9000 # S3 API
-      - 9001:9001 # Web console
-    environment:
-      <<: *common-env
-      MINIO_ROOT_USER: ${MINIO_ROOT_USER:-admin}
-      MINIO_ROOT_PASSWORD: ${MINIO_ROOT_PASSWORD:-admin}
-    volumes:
-      - ${VOLUME_DIR_PATH:-./volumes}/minio-data:/data
+  # minio:
+  #   <<: *common
+  #   image: quay.io/minio/minio:RELEASE.2025-04-22T22-12-26Z
+  #   command: server /data --console-address ":9001"
+  #   ports:
+  #     - 9000:9000 # S3 API
+  #     - 9001:9001 # Web console
+  #   environment:
+  #     <<: *common-env
+  #     MINIO_ROOT_USER: ${MINIO_ROOT_USER:-admin}
+  #     MINIO_ROOT_PASSWORD: ${MINIO_ROOT_PASSWORD:-admin}
+  #   volumes:
+  #     - ${VOLUME_DIR_PATH:-./volumes}/minio-data:/data
 
   mongodb:
     <<: *common

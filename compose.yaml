@@ -54,25 +54,14 @@ x-opensearch: &opensearch
       hard: 65536
 
 services:
-  redis:
-    <<: *common
-    image: redis:8-alpine
-    ports:
-      - 6379:6379
-    environment:
-      <<: *common-env
-    volumes:
-      - ${VOLUME_DIR_PATH:-./volumes}/redis-data:/data
-    healthcheck:
-      <<: *common-healthcheck
-      test: [ "CMD", "redis-cli", "ping" ]
-
   redis-1:
     <<: [ *common, *redis ]
     command:
       - redis-server
       - --appendonly
       - "yes"
+    ports:
+      - "127.0.0.1:6379:6379"
     volumes:
       - ${VOLUME_DIR_PATH:-./volumes}/redis1-data:/data
 
@@ -85,6 +74,8 @@ services:
       - "6379"
       - --appendonly
       - "yes"
+    ports:
+      - "127.0.0.1:6380:6379"
     volumes:
       - ${VOLUME_DIR_PATH:-./volumes}/redis2-data:/data
 
@@ -97,6 +88,8 @@ services:
       - "6379"
       - --appendonly
       - "yes"
+    ports:
+      - "127.0.0.1:6381:6379"
     volumes:
       - ${VOLUME_DIR_PATH:-./volumes}/redis3-data:/data
 
@@ -104,6 +97,8 @@ services:
     <<: [ *common, *redis ]
     command: >
       sh -c 'test -f /data/sentinel.conf || cp /etc/redis/sentinel.conf /data/sentinel.conf; exec redis-server /data/sentinel.conf --sentinel'
+    ports:
+      - "127.0.0.1:26379:26379"
     volumes:
       - ./config/redis/sentinel.conf:/etc/redis/sentinel.conf:ro
       - ${VOLUME_DIR_PATH:-./volumes}/sentinel1-data:/data
@@ -116,6 +111,8 @@ services:
     <<: [ *common, *redis ]
     command: >
       sh -c 'test -f /data/sentinel.conf || cp /etc/redis/sentinel.conf /data/sentinel.conf; exec redis-server /data/sentinel.conf --sentinel'
+    ports:
+      - "127.0.0.1:26380:26379"
     volumes:
       - ./config/redis/sentinel.conf:/etc/redis/sentinel.conf:ro
       - ${VOLUME_DIR_PATH:-./volumes}/sentinel2-data:/data
@@ -128,6 +125,8 @@ services:
     <<: [ *common, *redis ]
     command: >
       sh -c 'test -f /data/sentinel.conf || cp /etc/redis/sentinel.conf /data/sentinel.conf; exec redis-server /data/sentinel.conf --sentinel'
+    ports:
+      - "127.0.0.1:26381:26379"
     volumes:
       - ./config/redis/sentinel.conf:/etc/redis/sentinel.conf:ro
       - ${VOLUME_DIR_PATH:-./volumes}/sentinel3-data:/data

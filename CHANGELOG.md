@@ -2,6 +2,12 @@
 
 All notable changes to this project will be documented in this file.
 
+## [2.8.1](https://github.com/adke29/project-containers/compare/v2.8.0...v2.8.1) (2026-11-20)
+
+### Bug Fixes
+
+* fix port expose for redis ([0381c53](https://github.com/adke29/project-containers/commit/0381c530d6266162e4fd25b387107dd68e280233))
+
 ## [2.8.0](https://github.com/adke29/project-containers/compare/v2.7.0...v2.8.0) (2026-11-20)
 
 ### Features

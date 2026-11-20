@@ -2,6 +2,11 @@
 
 All notable changes to this project will be documented in this file.
 
+## [2.8.0](https://github.com/adke29/project-containers/compare/v2.7.0...v2.8.0) (2026-11-20)
+
+### Features
+
+* add redis sentinel ([ef9a563](https://github.com/adke29/project-containers/commit/ef9a563701dad38c740e746b1e24de29d4d305e3))
 ## [2.7.0](https://github.com/adke29/project-containers/compare/v2.6.0...v2.7.0) (2026-10-31)
 
 ### Features

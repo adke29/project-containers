@@ -14,11 +14,29 @@ x-common-healthcheck: &common-healthcheck
 
 x-redis: &redis
   image: redis:8-alpine
+  network_mode: host # for sentinel
   environment:
     <<: *common-env
   healthcheck:
     <<: *common-healthcheck
     test: [ "CMD", "redis-cli", "ping" ]
+
+x-sentinel: &sentinel
+  image: redis:8-alpine
+  network_mode: host # for sentinel
+  entrypoint:
+    - "/bin/sh"
+    - "/etc/sentinel-entrypoint.sh"
+  healthcheck:
+    <<: *common-healthcheck
+    test: [ "CMD", "redis-cli", '-p', '26379', "ping" ]
+  depends_on:
+    - redis-1
+    - redis-2
+    - redis-3
+
+x-redis-healthcheck: &redis-healthcheck
+  test: [ "CMD", "redis-cli", "ping" ]
 
 x-postgress-env: &postgress-env
   POSTGRES_USER: ${POSTGRES_USER:-admin}
@@ -58,10 +76,14 @@ services:
     <<: [ *common, *redis ]
     command:
       - redis-server
+      - --port
+      - "6379"
+      - --bind
+      - "127.0.0.1"
+      - --protected-mode
+      - "yes"
       - --appendonly
       - "yes"
-    ports:
-      - "127.0.0.1:6379:6379"
     volumes:
       - ${VOLUME_DIR_PATH:-./volumes}/redis1-data:/data
 
@@ -69,13 +91,17 @@ services:
     <<: [ *common, *redis ]
     command:
       - redis-server
+      - --port
+      - "6380"
+      - --bind
+      - "127.0.0.1"
+      - --protected-mode
+      - "yes"
       - --replicaof
-      - redis-1
+      - "127.0.0.1"
       - "6379"
       - --appendonly
       - "yes"
-    ports:
-      - "127.0.0.1:6380:6379"
     volumes:
       - ${VOLUME_DIR_PATH:-./volumes}/redis2-data:/data
 
@@ -83,57 +109,46 @@ services:
     <<: [ *common, *redis ]
     command:
       - redis-server
+      - --port
+      - "6381"
+      - --bind
+      - "127.0.0.1"
+      - --protected-mode
+      - "yes"
       - --replicaof
-      - redis-1
+      - "127.0.0.1"
       - "6379"
       - --appendonly
       - "yes"
-    ports:
-      - "127.0.0.1:6381:6379"
     volumes:
       - ${VOLUME_DIR_PATH:-./volumes}/redis3-data:/data
 
   sentinel-1:
-    <<: [ *common, *redis ]
-    command: >
-      sh -c 'test -f /data/sentinel.conf || cp /etc/redis/sentinel.conf /data/sentinel.conf; exec redis-server /data/sentinel.conf --sentinel'
-    ports:
-      - "127.0.0.1:26379:26379"
+    <<: [ *common, *redis, *sentinel ]
+    environment:
+      <<: *common-env
+      SENTINEL_PORT: "26379"
     volumes:
-      - ./config/redis/sentinel.conf:/etc/redis/sentinel.conf:ro
+      - ./config/redis/sentinel-entrypoint.sh:/etc/sentinel-entrypoint.sh:ro
       - ${VOLUME_DIR_PATH:-./volumes}/sentinel1-data:/data
-    depends_on:
-      - redis-1
-      - redis-2
-      - redis-3
 
   sentinel-2:
-    <<: [ *common, *redis ]
-    command: >
-      sh -c 'test -f /data/sentinel.conf || cp /etc/redis/sentinel.conf /data/sentinel.conf; exec redis-server /data/sentinel.conf --sentinel'
-    ports:
-      - "127.0.0.1:26380:26379"
+    <<: [ *common, *redis, *sentinel ]
+    environment:
+      <<: *common-env
+      SENTINEL_PORT: "26380"
     volumes:
-      - ./config/redis/sentinel.conf:/etc/redis/sentinel.conf:ro
+      - ./config/redis/sentinel-entrypoint.sh:/etc/sentinel-entrypoint.sh:ro
       - ${VOLUME_DIR_PATH:-./volumes}/sentinel2-data:/data
-    depends_on:
-      - redis-1
-      - redis-2
-      - redis-3
 
   sentinel-3:
     <<: [ *common, *redis ]
-    command: >
-      sh -c 'test -f /data/sentinel.conf || cp /etc/redis/sentinel.conf /data/sentinel.conf; exec redis-server /data/sentinel.conf --sentinel'
-    ports:
-      - "127.0.0.1:26381:26379"
+    environment:
+      <<: *common-env
+      SENTINEL_PORT: "26381"
     volumes:
-      - ./config/redis/sentinel.conf:/etc/redis/sentinel.conf:ro
+      - ./config/redis/sentinel-entrypoint.sh:/etc/sentinel-entrypoint.sh:ro
       - ${VOLUME_DIR_PATH:-./volumes}/sentinel3-data:/data
-    depends_on:
-      - redis-1
-      - redis-2
-      - redis-3
 
   # minio:
   #   <<: *common
@@ -149,71 +164,71 @@ services:
   #   volumes:
   #     - ${VOLUME_DIR_PATH:-./volumes}/minio-data:/data
 
-  mongodb:
-    <<: *common
-    image: mongo:9-noble
-    ports:
-      - 27017:27017
-    environment:
-      <<: *common-env
-      MONGO_INITDB_ROOT_USERNAME: ${MONGO_INITDB_ROOT_USERNAME:-admin}
-      MONGO_INITDB_ROOT_PASSWORD: ${MONGO_INITDB_ROOT_PASSWORD:-admin}
-    volumes:
-      - ${VOLUME_DIR_PATH:-./volumes}/mongodb-data:/data/db
-      - ${VOLUME_DIR_PATH:-./volumes}/mongodb-config:/data/configdb
-    healthcheck:
-      <<: *common-healthcheck
-      test: [ "CMD", "mongosh", "--eval", "db.adminCommand('ping')" ]
+  # mongodb:
+  #   <<: *common
+  #   image: mongo:9-noble
+  #   ports:
+  #     - 27017:27017
+  #   environment:
+  #     <<: *common-env
+  #     MONGO_INITDB_ROOT_USERNAME: ${MONGO_INITDB_ROOT_USERNAME:-admin}
+  #     MONGO_INITDB_ROOT_PASSWORD: ${MONGO_INITDB_ROOT_PASSWORD:-admin}
+  #   volumes:
+  #     - ${VOLUME_DIR_PATH:-./volumes}/mongodb-data:/data/db
+  #     - ${VOLUME_DIR_PATH:-./volumes}/mongodb-config:/data/configdb
+  #   healthcheck:
+  #     <<: *common-healthcheck
+  #     test: [ "CMD", "mongosh", "--eval", "db.adminCommand('ping')" ]
 
-  mysql:
-    <<: *common
-    image: mysql:9.7
-    # ports:
-    #   - "3306:3306"
-    environment:
-      <<: *common-env
-      MYSQL_ROOT_PASSWORD: ${MYSQL_ROOT_PASSWORD:-admin}
-      MYSQL_USER: ${MYSQL_USER:-admin}
-      MYSQL_PASSWORD: ${MYSQL_PASSWORD:-admin}
-      MYSQL_DATABASE: ${MYSQL_DATABASE:-${MYSQL_USER:-test}}
-    volumes:
-      - ${VOLUME_DIR_PATH:-./volumes}/mysql-data:/var/lib/mysql
-    healthcheck:
-      <<: *common-healthcheck
-      test: [ "CMD-SHELL", "mysqladmin ping -h localhost -u root -p$$MYSQL_ROOT_PASSWORD || exit 1" ]
+  # mysql:
+  #   <<: *common
+  #   image: mysql:9.7
+  #   # ports:
+  #   #   - "3306:3306"
+  #   environment:
+  #     <<: *common-env
+  #     MYSQL_ROOT_PASSWORD: ${MYSQL_ROOT_PASSWORD:-admin}
+  #     MYSQL_USER: ${MYSQL_USER:-admin}
+  #     MYSQL_PASSWORD: ${MYSQL_PASSWORD:-admin}
+  #     MYSQL_DATABASE: ${MYSQL_DATABASE:-${MYSQL_USER:-test}}
+  #   volumes:
+  #     - ${VOLUME_DIR_PATH:-./volumes}/mysql-data:/var/lib/mysql
+  #   healthcheck:
+  #     <<: *common-healthcheck
+  #     test: [ "CMD-SHELL", "mysqladmin ping -h localhost -u root -p$$MYSQL_ROOT_PASSWORD || exit 1" ]
 
-  mariadb:
-    <<: *common
-    image: mariadb:11.8.8
-    ports:
-      - "3306:3306"
-    environment:
-      <<: *common-env
-      MARIADB_ROOT_PASSWORD: ${MARIADB_ROOT_PASSWORD:-admin}
-      MARIADB_USER: ${MARIADB_USER:-admin}
-      MARIADB_PASSWORD: ${MARIADB_PASSWORD:-admin}
-      MARIADB_DATABASE: ${MARIADB_DATABASE:-${MARIADB_USER:-test}}
-    volumes:
-      - ${VOLUME_DIR_PATH:-./volumes}/mariadb-data:/var/lib/mysql
-    healthcheck:
-      <<: *common-healthcheck
-      test: [ "CMD-SHELL", "healthcheck.sh", "--connect", "--innodb_initialized" ]
+  # mariadb:
+  #   <<: *common
+  #   image: mariadb:11.8.8
+  #   ports:
+  #     - "3306:3306"
+  #   environment:
+  #     <<: *common-env
+  #     MARIADB_ROOT_PASSWORD: ${MARIADB_ROOT_PASSWORD:-admin}
+  #     MARIADB_USER: ${MARIADB_USER:-admin}
+  #     MARIADB_PASSWORD: ${MARIADB_PASSWORD:-admin}
+  #     MARIADB_DATABASE: ${MARIADB_DATABASE:-${MARIADB_USER:-test}}
+  #   volumes:
+  #     - ${VOLUME_DIR_PATH:-./volumes}/mariadb-data:/var/lib/mysql
+  #   healthcheck:
+  #     <<: *common-healthcheck
+  #     test: [ "CMD-SHELL", "healthcheck.sh", "--connect", "--innodb_initialized" ]
 
-  phpmyadmin:
-    <<: *common
-    image: phpmyadmin
-    ports:
-      - 81:80
-    environment:
-      <<: *common-env
-      PMA_ARBITRARY: 1
-      UPLOAD_LIMIT: 2G
-      MAX_EXECUTION_TIME: 0
-      MEMORY_LIMIT: 2G
-      # PMA_HOST: mysql
-      # PMA_PORT: 3306
-      # PMA_USER: ${MYSQL_USER:-admin}
-      # PMA_PASSWORD: ${MYSQL_PASSWORD:-admin}
+  # phpmyadmin:
+  #   <<: *common
+  #   image: phpmyadmin
+  #   ports:
+  #     - 81:80
+  #   environment:
+  #     <<: *common-env
+  #     PMA_ARBITRARY: 1
+  #     UPLOAD_LIMIT: 2G
+  #     MAX_EXECUTION_TIME: 0
+  #     MEMORY_LIMIT: 2G
+  #     # PMA_HOST: mysql
+  #     # PMA_PORT: 3306
+  #     # PMA_USER: ${MYSQL_USER:-admin}
+  #     # PMA_PASSWORD: ${MYSQL_PASSWORD:-admin}
 
   postgresql:
     <<: [ *common, *postgres ]

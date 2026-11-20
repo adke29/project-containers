@@ -1,7 +1,5 @@
 x-common: &common
   restart: unless-stopped
-  networks:
-    - project-container-net
 
 x-common-env: &common-env
   TZ: ${TZ:-UTC}
@@ -329,6 +327,3 @@ services:
   #   command:
   #     - agent
   #     - -config-dir=/consul/config
-
-networks:
-  project-container-net:

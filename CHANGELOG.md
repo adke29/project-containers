@@ -2,6 +2,14 @@
 
 All notable changes to this project will be documented in this file.
 
+## [2.8.2](https://github.com/adke29/project-containers/compare/v2.8.1...v2.8.2) (2026-11-23)
+
+### Bug Fixes
+
+* fix cannot connect to redis because sentinel url ([dd97116](https://github.com/adke29/project-containers/commit/dd9711614ee6204766dff25f55e1cb764eb6dfb1))
+* fix error redis cannot start because port 6379 used ([baaafdd](https://github.com/adke29/project-containers/commit/baaafdd23fb1274047c32c53ec855592ce63e8a7))
+* fix network conflict error ([dd41fa9](https://github.com/adke29/project-containers/commit/dd41fa98520596f48dc8c238b490ba983901b51f))
+
 ## [2.8.1](https://github.com/adke29/project-containers/compare/v2.8.0...v2.8.1) (2026-11-20)
 
 ### Bug Fixes

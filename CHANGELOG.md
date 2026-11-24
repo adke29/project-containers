@@ -2,6 +2,12 @@
 
 All notable changes to this project will be documented in this file.
 
+## [2.9.0](https://github.com/adke29/project-containers/compare/v2.8.2...v2.9.0) (2026-11-24)
+
+### Features
+
+* add profiles ([2b70f8b](https://github.com/adke29/project-containers/commit/2b70f8bc9562ea44a3ebd56fa5d1886affb910ed))
+
 ## [2.8.2](https://github.com/adke29/project-containers/compare/v2.8.1...v2.8.2) (2026-11-23)
 
 ### Bug Fixes

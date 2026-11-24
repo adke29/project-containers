@@ -13,6 +13,7 @@ x-common-healthcheck: &common-healthcheck
 x-redis: &redis
   image: redis:8-alpine
   network_mode: host # for sentinel
+  profiles: [ redis ]
   environment:
     <<: *common-env
   healthcheck:
@@ -22,6 +23,7 @@ x-redis: &redis
 x-sentinel: &sentinel
   image: redis:8-alpine
   network_mode: host # for sentinel
+  profiles: [ redis ]
   entrypoint:
     - "/bin/sh"
     - "/etc/sentinel-entrypoint.sh"
@@ -40,6 +42,7 @@ x-postgress-env: &postgress-env
 
 x-postgres: &postgres
   image: postgres:18-alpine
+  profiles: [ postgresql ]
   environment:
     <<: [ *common-env, *postgress-env ]
   healthcheck:
@@ -56,6 +59,7 @@ x-opensearch-env: &opensearch-env
 
 x-opensearch: &opensearch
   image: opensearchproject/opensearch:3
+  profiles: [ opensearch ]
   environment:
     <<: [ *common-env, *opensearch-env ]
   ulimits:
@@ -119,7 +123,7 @@ services:
       - ${VOLUME_DIR_PATH:-./volumes}/redis3-data:/data
 
   sentinel-1:
-    <<: [ *common, *redis, *sentinel ]
+    <<: [ *common, *sentinel ]
     environment:
       <<: *common-env
       SENTINEL_PORT: "26379"
@@ -128,7 +132,7 @@ services:
       - ${VOLUME_DIR_PATH:-./volumes}/sentinel1-data:/data
 
   sentinel-2:
-    <<: [ *common, *redis, *sentinel ]
+    <<: [ *common, *sentinel ]
     environment:
       <<: *common-env
       SENTINEL_PORT: "26380"
@@ -137,7 +141,7 @@ services:
       - ${VOLUME_DIR_PATH:-./volumes}/sentinel2-data:/data
 
   sentinel-3:
-    <<: [ *common, *redis, *sentinel ]
+    <<: [ *common, *sentinel ]
     environment:
       <<: *common-env
       SENTINEL_PORT: "26381"
@@ -147,6 +151,7 @@ services:
 
   minio:
     <<: *common
+    profiles: [ minio ]
     image: quay.io/minio/minio:RELEASE.2025-04-22T22-12-26Z
     command: server /data --console-address ":9001"
     ports:
@@ -161,6 +166,7 @@ services:
 
   mongodb:
     <<: *common
+    profiles: [ mongodb ]
     image: mongo:9-noble
     ports:
       - 27017:27017
@@ -177,6 +183,7 @@ services:
 
   mysql:
     <<: *common
+    profiles: [ mysql ]
     image: mysql:9.7
     # ports:
     #   - "3306:3306"
@@ -194,6 +201,7 @@ services:
 
   mariadb:
     <<: *common
+    profiles: [ mariadb ]
     image: mariadb:11.8.8
     ports:
       - "3306:3306"
@@ -211,6 +219,7 @@ services:
 
   phpmyadmin:
     <<: *common
+    profiles: [ mariadb, mysql ]
     image: phpmyadmin
     ports:
       - 81:80
@@ -246,6 +255,7 @@ services:
 
   pgadmin:
     <<: *common
+    profiles: [ postgresql ]
     image: dpage/pgadmin4
     ports:
       - 82:80
@@ -280,6 +290,7 @@ services:
 
   opensearch-dashboards:
     <<: *common
+    profiles: [ opensearch ]
     image: opensearchproject/opensearch-dashboards
     ports:
       - 5601:5601
@@ -289,6 +300,7 @@ services:
 
   nats:
     <<: *common
+    profiles: [ nats ]
     image: nats:2-alpine
     command: [ "-js", "-sd", "/data", "-m", "8222", "--user", "${NATS_USER:-admin}", "--pass", "${NATS_PASSWORD:-admin}" ]
     ports:
@@ -298,29 +310,3 @@ services:
       <<: *common-env
     volumes:
       - ${VOLUME_DIR_PATH:-./volumes}/nats-data:/data
-  # keycloak:
-  #   <<: *common
-  #   image: quay.io/keycloak/keycloak:26.7
-  #   ports:
-  #     - 8080:8080
-  #   environment:
-  #     <<: *common-env
-  #     KC_BOOTSTRAP_ADMIN_USERNAME: ${KC_BOOTSTRAP_ADMIN_USERNAME:-admin}
-  #     KC_BOOTSTRAP_ADMIN_PASSWORD: ${KC_BOOTSTRAP_ADMIN_PASSWORD:-admin}
-  #   command: [ 'start-dev' ]
-
-  # consul:
-  #   <<: *common
-  #   image: hashicorp/consul:2.0.4
-  #   ports:
-  #     - 8500:8500 # Web UI & HTTP API
-  #     - 8600:8600/tcp # DNS Server (UDP)
-  #     - 8600:8600/udp # DNS Server (TCP)
-  #   environment:
-  #     <<: *common-env
-  #   volumes:
-  #     - ./config/consul/config:/consul/config
-  #     - ${VOLUME_DIR_PATH:-./volumes}/consul-data:/consul/data
-  #   command:
-  #     - agent
-  #     - -config-dir=/consul/config
